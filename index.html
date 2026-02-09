@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>옌느/서하린</title>
+    <style>
+        /* 전체 스크롤바 숨기기 */
+        ::-webkit-scrollbar { display: none; }
+        html, body { -ms-overflow-style: none; scrollbar-width: none; }
+
+        body { background-color: #f0ebf8; margin: 0; padding: 20px 15px; font-family: -apple-system, sans-serif; display: flex; justify-content: center; }
+        
+        .card { 
+            width: 100%; max-width: 360px; background: white; border-radius: 30px; padding: 25px; 
+            box-shadow: 0 10px 30px rgba(180, 160, 210, 0.3); box-sizing: border-box; 
+            min-height: 600px; position: relative; overflow-y: auto;
+            -ms-overflow-style: none; scrollbar-width: none; 
+        }
+        
+        .view { display: none; width: 100%; }
+        .view.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 메인 페이지 스타일 */
+        .profile-header { display: grid; grid-template-columns: 100px 1fr; gap: 15px; margin-bottom: 25px; align-items: center; }
+        .profile-img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #e1bee7; object-fit: cover; }
+        .music-player { background: #f8f4ff; border-radius: 20px; padding: 15px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; border: 1px solid #e1bee7; cursor: pointer; }
+        .album-art { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
+        .music-info { flex-grow: 1; }
+        .music-title { font-size: 14px; font-weight: bold; color: #4a148c; display: block; }
+        .play-controls { width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; background: #fff; border-radius: 50%; color: #7b1fa2; }
+        .btn-list { display: flex; flex-direction: column; gap: 10px; }
+        .btn { background: white; border: 1.5px solid #d1c4e9; padding: 12px; border-radius: 15px; text-decoration: none; color: #512da8; font-size: 14px; font-weight: 600; text-align: center; cursor: pointer; }
+
+        /* 작업물 영역 */
+        .work-grid-main { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; cursor: pointer; }
+        .work-thumb { width: 100%; aspect-ratio: 1; border-radius: 10px; object-fit: contain; background: #f8f4ff; }
+
+        /* 하단 레이아웃 */
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; align-items: start; }
+        .bottom-right-area { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .bottom-img { width: 100%; height: 130px; border-radius: 20px; object-fit: cover; background: #eee; }
+        
+        /* 5pt 크기의 아주 작은 글씨 스타일 */
+        .tiny-text { 
+            font-size: 5pt; 
+            color: #b099cc; 
+            text-align: center; 
+            line-height: 1.2;
+            word-break: keep-all;
+        }
+
+        /* 상세 페이지 스타일 */
+        .portfolio-view h2 { color: #4527a0; font-size: 20px; margin-top: 0; margin-bottom: 15px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: #9575cd; cursor: pointer; font-size: 14px; font-weight: 600; }
+        .category-tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
+        .tab { padding: 8px 16px; border-radius: 20px; background: #f3e5f5; color: #7b1fa2; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; border: none; outline: none; transition: 0.2s; }
+        .tab.active { background: #7b1fa2; color: white; }
+        .work-item-detail { display: none; margin-bottom: 25px; border-bottom: 1px solid #f0ebf8; padding-bottom: 15px; }
+        .work-item-detail.show { display: block; animation: fadeIn 0.3s ease; }
+        .work-item-detail img { width: 100%; height: auto; border-radius: 15px; margin-bottom: 10px; object-fit: contain; background: #fafafa; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="main-view" class="view active">
+        <div class="profile-header">
+            <img src="https://cdn.discordapp.com/attachments/1322152571103875082/1470112949535248678/IMG_5556.jpg?ex=698a1ce0&is=6988cb60&hm=53c6f43e8c32bfe02536ac8e0fb9d8cebc1f2b45defc8dbb56c6e54f46e129d0&" class="profile-img">
+            <div class="btn-list">
+                <a href="https://curious.quizby.me/yenne" class="btn">큐리어스</a>
+                <a href="#" class="btn">--</a>
+            </div>
+        </div>
+
+        <div class="music-player" onclick="toggleMusic()">
+            <img src="https://i.ytimg.com/vi/2zWoXGKrgx8/mqdefault.jpg" class="album-art">
+            <div class="music-info">
+                <span class="music-title" id="mTitle">STAR (별)</span>
+                <span class="music-artist">Chawoo (차우)</span>
+            </div>
+            <div id="playBtn" class="play-controls">▶</div>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; color: #4527a0;">작업물</span>
+                <span class="back-btn" style="margin:0" onclick="showView('portfolio-view')">전체보기 〉</span>
+            </div>
+            <div class="work-grid-main" onclick="showView('portfolio-view')">
+                <img src="11.png" class="work-thumb">
+                <img src="17.PNG" class="work-thumb">
+                <img src="4.png" class="work-thumb">
+            </div>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="btn-list">
+                <a href="https://www.postype.com/@lovessh" class="btn">포스타입</a>
+                <a href="https://linen-grass-d8a.notion.site/2e55ee0db0ee8036a4a4f236f5fb3606?source=copy_link" class="btn">심성훈 백업</a>
+            </div>
+            <div class="bottom-right-area">
+                <img src="shhr.PNG" class="bottom-img">
+                <div class="tiny-text">©돔자까님</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="portfolio-view" class="view portfolio-view">
+        <span class="back-btn" onclick="showView('main-view')">〈 돌아가기</span>
+        <h2>나의 작업물 목차</h2>
+        <div class="category-tabs">
+            <button class="tab" onclick="filterWorks('sh', this)">심성훈</button>
+            <button class="tab" onclick="filterWorks('hr', this)">서하린</button>
+            <button class="tab" onclick="filterWorks('wedding', this)">청첩장</button>
+            <button class="tab" onclick="filterWorks('shr', this)">성훈하린</button>
+            <button class="tab" onclick="filterWorks('main', this)">메인트</button>
+            <button class="tab" onclick="filterWorks('etc', this)">기타</button>
+        </div>
+        <div id="work-container">
+            <div class="work-item-detail sh show">
+                <img src="1.png">
+                <img src="2.png">
+                <img src="3.png">
+                <img src="4.png">
+                <img src="5.png">
+                <img src="6.png">
+                <img src="16.jpg">
+                <img src="17.png">
+                <img src="18.png">
+            </div>
+
+            <div class="work-item-detail hr show">
+                <img src="7.png">
+                <img src="8.png">
+                <img src="9.png">
+                <img src="10.png">
+                <img src="11.png">
+            </div>
+
+            <div class="work-item-detail wedding show">
+                <img src="12.png">
+                <img src="13.png">
+                <img src="14.png">
+                <img src="15.png">
+            </div>
+
+            <div class="work-item-detail shr show">
+                <img src="19.png">
+                <img src="20.jpg">
+                <img src="21.png">
+                <img src="22.jpg">
+            </div>
+
+            <div class="work-item-detail main show">
+                <img src="23.png">
+            </div>
+
+            <div class="work-item-detail etc show">
+                <img src="24.png">
+                <img src="25.png">
+                <img src="26.png">
+                <img src="27.png">
+                <img src="28.png">
+                <img src="29.jpg">
+                <img src="30.png">
+                <img src="31.png">
+                <img src="32.jpg"></div>
+        </div>
+    </div>
+</div>
+
+<audio id="myAudio">
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+    
+    function filterWorks(category, tabElement) {
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        tabElement.classList.add('active');
+        const items = document.querySelectorAll('.work-item-detail');
+        items.forEach(item => {
+            item.classList.remove('show');
+            if (category === 'all' || item.classList.contains(category)) {
+                item.classList.add('show');
+            }
+        });
+    }
+
+    /* 개선된 음악 재생 스크립트 */
+    const audio = document.getElementById("myAudio");
+    const playBtn = document.getElementById("playBtn");
+    const mTitle = document.getElementById("mTitle");
+    let isPlaying = false;
+
+    function toggleMusic() {
+        if (!isPlaying) {
+            // 재생 시도 전 로드 확인
+            audio.load(); 
+            
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isPlaying = true;
+                    playBtn.innerText = "⏸";
+                    mTitle.innerText = "🎶 재생 중...";
+                }).catch(e => {
+                    console.error("재생 오류:", e);
+                    alert("음악 파일을 재생할 수 없습니다. \n1. 파일명이 'STAR (별 (STAR)).mp3'인지 \n2. HTML과 같은 폴더에 있는지 확인해주세요.");
+                });
+            }
+        } else {
+            audio.pause();
+            isPlaying = false;
+            playBtn.innerText = "▶";
+            mTitle.innerText = "STAR (별)";
+        }
+    }
+
+    // 파일 로드 실패 시 미리 알림 (개발자 도구 콘솔 확인용)
+    audio.addEventListener('error', function() {
+        console.error("오디오 파일을 찾을 수 없습니다: STAR (별 (STAR)).mp3");
+    });
+</script>
+
+</body>
+</html>
